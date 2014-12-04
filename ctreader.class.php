@@ -31,7 +31,7 @@ class CTReader
 		return 0;
 	}
 	
-	public function downloadNextRange($i)
+	public function downloadNextRange($i=0)
 	{
 		$from=$i;
 		$until=$i+$this->download_step-1;

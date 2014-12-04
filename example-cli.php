@@ -1,12 +1,18 @@
 <?php
 include_once("ctreader.class.php");
 
+//quick example
 $ct = new CTReader('https://ct.googleapis.com/pilot/');
-$ct->downloadNextRange($i=0);//grab another 2000
-$ct->parseFileList();
+$ct->downloadNextRange();//grab first 2000
+$ct->parseFileList();//parse first 2000
 exit(0);
 
-//or with inheritance
+//download all
+$ct = new CTReader('https://ct.googleapis.com/pilot/');
+$ct->downloadAll();//loop and fetch 2000 at a time
+exit(0);
+
+//customize the parser
 class CTParser extends CTReader
 {
 	public function parseCert($cert_pem)
