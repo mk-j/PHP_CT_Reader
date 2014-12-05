@@ -257,21 +257,30 @@ class ASN1Parser
 
 	public static function parseTime($bytes,$cstart,$clength)
 	{
-		//YYMMDDhhmmZ (test)
-		//YYMMDDhhmm+hh'mm' (untested)
-		//YYMMDDhhmm-hh'mm' (untested)
-		//YYMMDDhhmmssZ (test)
-		//YYMMDDhhmmss+hh'mm' (untested)
-		//YYMMDDhhmmss-hh'mm' (untested) 
+		//YYMMDDhhmmZ (test) (YY below 50, 1949... YY>=50 2050)
+		//YYYYMMDDhhmmZ (test)
 		$str = self::parseStringISO($bytes,$cstart,$clength);
 		$p = str_split($str,2);
-		$prefix = $p[0] > 50 ? '19' : '20';
-		$p[6] = $p[5]=='Z' ? 'Z' : $p[6]; //move Z to 6... if on 5
-		$p[5] = $p[5]=='Z' ? '00' : $p[5];//replace Z on 5 with 00
-		$tz = $p[6][0]=='Z' ? 'GMT' : $p[6];//replace Z with GMT
-		return $prefix.$p[0]."-".$p[1]."-".$p[2]." ".$p[3].":".$p[4].":".$p[5]." ".$tz;//6 expects 'Z'
+		if (preg_match("/^[0-9]{12}Z$/", $str))
+		{
+			$prefix = $p[0] > 50 ? '19' : '20';
+		}
+		else if (preg_match("/^[0-9]{14}Z$/", $str))
+		{
+			$prefix = $p[0];
+			array_shift($p);//remove p[0], shift
+		}
+		if (!empty($prefix))
+		{
+			$p[6] = $p[5]=='Z' ? 'Z' : $p[6]; //move Z to 6... if on 5
+			$p[5] = $p[5]=='Z' ? '00' : $p[5];//replace Z on 5 with 00
+			$tz = $p[6][0]=='Z' ? 'GMT' : $p[6];//replace Z with GMT
+			return $prefix.$p[0]."-".$p[1]."-".$p[2]." ".$p[3].":".$p[4].":".$p[5]." ".$tz;//6 expects 'Z'
+		}
+		syslog(LOG_INFO, "[CERTTOOLS] ASN1 Unable to parse date: '$str'");
+		return $str;
 	}
-	
+
 	public static function parseOID($bytes,$cstart,$clength)
 	{
     	$start = $cstart;
