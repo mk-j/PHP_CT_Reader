@@ -138,15 +138,31 @@ class ASN1File
 		$details = array();
 		if ($node)
 		{
+			$start = $node->cstart() - $node->header();
+			$leng = $node->clength() + $node->header();
+			$public_key = ASN1Parser::parseStringISO($this->bytes, $start, $leng);
+			$details['key']='-----BEGIN PUBLIC KEY-----'."\n".chunk_split(base64_encode($public_key),64,"\n").'-----END PUBLIC KEY-----'."\n";
+
+			//if (($oid_node = $node->child("0")) && !$oid_node->hasChildren())
+			//{
+			//	$oid = $oid_node->toString();
+			//	$details['publicKeyAlgorithm'] = ASN1Utils::oid($oid);
+			//}
+			//else 
 			if ($oid_node = $node->child("0-0"))
 			{
 				$oid = $oid_node->toString();
 				$details['publicKeyAlgorithm'] = ASN1Utils::oid($oid);
 			}
+			//if ($oid=='1.2.840.10040.4.3' && ($alg_node = $node->child("0-1")))//DSA not really supported yet
+			//{
+            //    $details['type'] = 'dsa';
+			//}
 			if ($oid=='1.2.840.10045.2.1' && ($alg_node = $node->child("0-1")))//EC
 			{
                 $details['type'] = 'ec';
 				$details['algorithmCurve'] = ASN1Utils::oid($alg_node->toString());
+				//$details['keySize'] = '';//not working for ECC yet
 			}
 			if ($oid=='1.2.840.113549.1.1.1' && ($bit_node = $node->child("1")))//RSA
 			{

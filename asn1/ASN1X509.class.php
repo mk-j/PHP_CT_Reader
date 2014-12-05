@@ -69,15 +69,13 @@ class ASN1X509 extends ASN1File
 		$valid_dates = array();
 		if ($node)
 		{
-			if ($not_before_node = $node->child(0))
+			if ($from_node = $node->child(0))
 			{
-				$valid_dates['validFrom'] = $not_before_node->toString();//TODO gradually deprecate this
-				$valid_dates['notBefore'] = $not_before_node->toString();
+				$valid_dates['validFrom'] = $from_node->toString();
 			}
-			if ($not_after_node = $node->child(1))
+			if ($till_node = $node->child(1))
 			{
-				$valid_dates['validTill'] = $not_after_node->toString();//TODO gradually deprecate this
-				$valid_dates['notAfter']  = $not_after_node->toString();
+				$valid_dates['validTill'] = $till_node->toString();
 			}
 		}
 		return $valid_dates;

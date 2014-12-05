@@ -45,8 +45,8 @@ class ASN1Utils
 		'0.9.2342.19200300.100.1.25'=>'uclDataNetworksDirectoryPilotDomainComponent',
 		'0.9.2342.19200300.100.1.1'=>'uclDataNetworksDirectoryPilotUserId',
 		'1.2.840.10040.4.1'=>'dsaSignatureKey',
-		'1.2.840.10040.4.3'=>'id-dsa-with-sha1',
-		'1.2.840.10045.2.1'=>'ECPublicKey',//ECC
+		'1.2.840.10040.4.3'=>'dsaEncryption',
+		'1.2.840.10045.2.1'=>'ecPublicKey',//ECC
 		'1.2.840.10045.3.1.1'=>'P-224/secp192r1',//Elliptic Curve
 		'1.2.840.10045.3.1.7'=>'P-256/prime256v1/secp256r1',//Elliptic Curve
 		'1.2.840.10045.4.1'=>'ecdsa-with-SHA1',//ECC sig

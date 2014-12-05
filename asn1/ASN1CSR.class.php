@@ -158,17 +158,8 @@ class ASN1CSR extends ASN1File
 				//file_put_contents('z_sig.txt', chunk_split(implode(":",str_split(bin2hex($signature),2)),63));
 			}
 
-			$public_key_pem = '';
-			if ($node = $this->tbsCertificateNode(2))
-			{
-				$start = $node->cstart() - $node->header();
-				$leng = $node->clength() + $node->header();
-				$public_key = ASN1Parser::parseStringISO($this->bytes, $start, $leng);
-				$public_key_pem.='-----BEGIN PUBLIC KEY-----'."\n";
-				$public_key_pem.=chunk_split(base64_encode($public_key),64,"\n");
-				$public_key_pem.='-----END PUBLIC KEY-----'."\n";
-				//file_put_contents('z_pub.txt', $public_key_pem);
-			}
+			$public_key_info = $this->getPublicKeyInfo();
+			$public_key_pem = $public_key_info['key'];
 			
 			if ($node = $this->root->child("1-0"))
 			{
