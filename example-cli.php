@@ -19,6 +19,19 @@ class CTParser extends CTReader
 	{
 		$parsed = openssl_x509_parse($cert_pem);
 		echo json_encode($parsed['subject']['CN'])."\n";
+		//$file = new ASN1X509();
+		//$file->loadPEM($pem);
+		//$details = array();
+		//$details['version'] = $file->getVersion();
+		//$details['serial'] = $file->getSerialNumber();
+		//$details['signatureType'] = $file->getSignatureType();
+		//$details['issuer'] = $file->getIssuer();
+		//$details['validDates'] = $file->getValidDates();
+		//$details['subject'] = $file->getSubject();
+		//$details['publicKey'] = $file->getPublicKeyInfo();
+		//$details['extensionInfo'] = $file->getExtensionInfo();
+		//$details['signatureInfo'] = $file->getSignatureInfo();
+		//print_r($details);
 	}
 }
 
