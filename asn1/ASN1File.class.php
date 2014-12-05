@@ -160,9 +160,12 @@ class ASN1File
 			//}
 			if ($oid=='1.2.840.10045.2.1' && ($alg_node = $node->child("0-1")))//EC
 			{
-                $details['type'] = 'ec';
+				$details['type'] = 'ec';
 				$details['algorithmCurve'] = ASN1Utils::oid($alg_node->toString());
-				//$details['keySize'] = '';//not working for ECC yet
+				if (preg_match("/([0-9]+)[^0-9]/", $details['algorithmCurve'], $matches))
+				{
+					$details['keySize'] = $matches[1];//the first positive integer in the string of ASN1Utils::oid() is keysize of the curve
+				}
 			}
 			if ($oid=='1.2.840.113549.1.1.1' && ($bit_node = $node->child("1")))//RSA
 			{
@@ -173,10 +176,10 @@ class ASN1File
 
 				if ($mod_node = $parsed_node->child(0))
 				{
-					$details['modulus'] = $mod_node->toString();
 					$a = substr($bytes,$mod_node->cstart(),$mod_node->clength());
 					for($i=0; ord($a[$i])==0; $i++);//find first non-zero byte
 					//$details['keySize'] = strlen(decbin(ord($a[$i]))) + strlen(substr($a,$i+1))*8;
+					$details['modulus'] = bin2hex(substr($a, $i));
 					$details['keySize'] = strlen(decbin(ord($a[$i]))) + (strlen($a)-$i-1)*8;
 				}
 				if ($exp_node = $parsed_node->child(1))
