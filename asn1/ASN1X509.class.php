@@ -159,6 +159,10 @@ class ASN1X509 extends ASN1File
 					$info['CA'] = 'TRUE';
 				}
 			}
+			if ($pathlen_node = $parsed_node->child("1"))
+			{
+				$info['pathlen'] = intval($pathlen_node->toString());
+			}
 		}
 		else if ($oid=='2.5.29.32')//certificatePolicies
 		{
@@ -176,7 +180,7 @@ class ASN1X509 extends ASN1File
 						foreach($grandchild->children() as $ggc)
 						{
 							$data = array();
-							$nodes = array($ggc->child(1));
+							$nodes = $ggc->child(1) ? array($ggc->child(1)) : array();
 							while(!empty($nodes))
 							{
 								$node = array_shift($nodes);
