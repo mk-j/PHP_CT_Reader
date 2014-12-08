@@ -237,20 +237,32 @@ class ASN1X509 extends ASN1File
 		}
 		else if ($oid=="2.5.29.15")//keyUsage
 		{
+			static $masks = array(7=>0x80, 6=>0xa0, 5=>0xe0, 4=>0xf0, 3=>0xf8, 2=>0xfa, 1=>0xfe, 0=>0xff);
+			//BIT STRING, first byte shows number of unused bits in the last byte
+			//http://luca.ntop.org/Teaching/Appunti/asn1.html
+
+			$bytes = $parsed_node->contentBytes();
+			$b0 = isset($bytes[0]) ? ord($bytes[0]) : 0;
+			$b1 = isset($bytes[1]) ? ord($bytes[1]) : 0;
+			$b2 = isset($bytes[2]) ? ord($bytes[2]) : 0;
+			$mask = isset($masks[$b0]) ? $masks[$b0] : 0xff;
+			$byte_count = strlen($bytes);
+			$b1 = $byte_count==2 ? ($b1 & $mask) : $b1;
+			$b2 = $byte_count==3 ? ($b2 & $mask) : $b2;
+
 			//see: openssl-1.0.1c/crypto/x509v3/v3_bitst.c
 			$key_usage = array();
-			$value = hexdec($parsed_node->toString());
-			if ($value & 0x80) { $key_usage[] = 'Digital Signature'; }//"digitalSignature",
-			if ($value & 0x40) { $key_usage[] = 'Non Repudiation';   }//"nonRepudiation",
-			if ($value & 0x20) { $key_usage[] = 'Key Encipherment';  }//"keyEncipherment",
-			if ($value & 0x10) { $key_usage[] = 'Data Encipherment'; }//"dataEncipherment",
-			if ($value & 0x08) { $key_usage[] = 'Key Agreement';     }//"keyAgreement",
-			if ($value & 0x04) { $key_usage[] = 'Certificate Sign';  }//"keyCertSign",
-			if ($value & 0x02) { $key_usage[] = 'CRL Sign';          }//"cRLSign",
-			if (empty($key_usage)) { $key_usage[] = 'any'; }
+			if ($b1 & 0x80) { $key_usage[] = 'Digital Signature'; }//"digitalSignature",
+			if ($b1 & 0x40) { $key_usage[] = 'Non Repudiation';   }//"nonRepudiation",
+			if ($b1 & 0x20) { $key_usage[] = 'Key Encipherment';  }//"keyEncipherment",
+			if ($b1 & 0x10) { $key_usage[] = 'Data Encipherment'; }//"dataEncipherment",
+			if ($b1 & 0x08) { $key_usage[] = 'Key Agreement';     }//"keyAgreement",
+			if ($b1 & 0x04) { $key_usage[] = 'Certificate Sign';  }//"keyCertSign",
+			if ($b1 & 0x02) { $key_usage[] = 'CRL Sign';          }//"cRLSign",
+			if ($b1 & 0x01) { $key_usage[] = 'Encipher Only';     }//"encipherOnly",
+			if ($b2 & 0x80) { $key_usage[] = 'Decipher Only';     }//"decipherOnly",
 			if ($critical_flag)  { $key_usage[] = 'critical'; }
 			$info = implode(", ", $key_usage);
-			//TODO could be missing deciper only and encipher only after crl sign
 		}
 		else if ($oid=="2.5.29.37")//extendedKeyUsage
 		{
