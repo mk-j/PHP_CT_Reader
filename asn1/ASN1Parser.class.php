@@ -201,7 +201,7 @@ class ASN1Parser
 	public static function parseBool($bytes,$cstart,$clength)
 	{
 		$pos = $cstart;
-		return $bytes[$pos] ? true : false;
+        return ord($bytes[$pos])==0 ? false : true;
 	}
 	
 	public static function parseHexString($bytes,$cstart,$clength)

@@ -113,10 +113,23 @@ class ASN1X509 extends ASN1File
 	public function getExtensionInfo()
 	{
 		$extensions_node = $this->tbsCertificateNode(7);
-
+        //    self::echoNode($extensions_node);
+        if ($this->getVersion()!=3)
+        {
+		    return array();
+        }
 		if ($extensions_node && $extensions_node->tag()==0xa3 && $extensions_node->child(0) && $extensions_node->child(0)->tag()==0x30)
 		{
-			return $this->extensionInfo($extensions_node->child(0));//calls extensionParser()
+			$info = $this->extensionInfo($extensions_node->child(0));//calls extensionParser()
+            if (isset($info['basicConstraints']['CA']))//see v3_purp.c, check_ca()
+            {
+                //must contain keyCertSign
+                if (isset($info['keyUsage']) && strpos($info['keyUsage'],"Certificate Sign")===false)
+                {            
+                    $info['basicConstraints']['CA']='FALSE';
+                }
+            }
+            return $info;
 		}
 		return array();
 	}
@@ -151,18 +164,21 @@ class ASN1X509 extends ASN1File
 		}
 		else if ($oid=="2.5.29.19")//basicConstraints
 		{
+            //self::echoNode($parsed_node);
 			$info['CA'] = 'FALSE';
-			if ($bool_node = $parsed_node->child("0"))
+            $first_node = $parsed_node->child("0");
+            if ($first_node && $first_node->tag()==ASN1Parser::U_BOOLEAN && $first_node->toString())
+            {
+				$info['CA'] = 'TRUE';
+            }
+            else if ($first_node && $first_node->tag()==ASN1Parser::U_INTEGER)
+            {
+		        $info['pathlen'] = hexdec($first_node->toString());
+            }
+			if (!isset($info['pathlen']) && $pathlen_node = $parsed_node->child("1"))
 			{
-				if ($bool_node->toString())
-				{
-					$info['CA'] = 'TRUE';
-				}
-			}
-			if ($pathlen_node = $parsed_node->child("1"))
-			{
-				$info['pathlen'] = intval($pathlen_node->toString());
-			}
+		        $info['pathlen'] = hexdec($pathlen_node->toString());
+            }
 		}
 		else if ($oid=='2.5.29.32')//certificatePolicies
 		{
@@ -237,7 +253,7 @@ class ASN1X509 extends ASN1File
 		}
 		else if ($oid=="2.5.29.15")//keyUsage
 		{
-			static $masks = array(7=>0x80, 6=>0xa0, 5=>0xe0, 4=>0xf0, 3=>0xf8, 2=>0xfa, 1=>0xfe, 0=>0xff);
+			static $masks = array(7=>0x80, 6=>0xc0, 5=>0xe0, 4=>0xf0, 3=>0xf8, 2=>0xfc, 1=>0xfe, 0=>0xff);
 			//BIT STRING, first byte shows number of unused bits in the last byte
 			//http://luca.ntop.org/Teaching/Appunti/asn1.html
 
