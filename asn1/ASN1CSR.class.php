@@ -23,7 +23,7 @@ class ASN1CSR extends ASN1File
 	public function getVersion()
 	{
 		$node = $this->tbsCertificateNode(0);
-		if ($node)
+		if ($node && $node->tag()==0x02)//Integer
 		{
 			return hexdec($node->toString());
 		}
@@ -33,14 +33,31 @@ class ASN1CSR extends ASN1File
 	public function getSubject()
 	{
 		$node = $this->tbsCertificateNode(1);
-		$key_value_pairs = $this->subjectOIDValues($node);
-		return $key_value_pairs;
+		if ($node && $node->tag()==0x30 //0x30 seq, 0x31 set 
+			&& $node->child(0) && $node->child(0)->tag()==0x31)
+		{
+			$key_value_pairs = $this->subjectOIDValues($node);
+			return $key_value_pairs;
+		}
+		return null;
 	}
 
 	public function getPublicKeyInfo()
 	{
 		$node = $this->tbsCertificateNode(2);
-		return $node ? $this->publicKeyInfo($node) : null;
+		if (!$node || $node->tag()!=0x30)
+		{
+			$node = $this->tbsCertificateNode(0);//some CSRs have no version/subject nodes
+		}
+		if ($node && $node->tag()==0x30  //0x30 seq
+			&& $node->child(0) && $node->child(0)->tag()==0x30 //0x30 seq
+			&& $node->child("0-0") && $node->child("0-0")->tag()==0x06 //0x06 OID
+			&& $node->child(1) && $node->child(1)->tag()==0x03 //0x03 bitstring
+			)
+		{
+			return $this->publicKeyInfo($node);
+		}
+		return null;
 	}
 
 	public function getExtensions()
@@ -51,7 +68,7 @@ class ASN1CSR extends ASN1File
 		{
 			foreach($extensions_node->children() as $main_node)
 			{
-				$oid = $main_node->child(0)->toString();
+				$oid = $main_node->child(0) ? $main_node->child(0)->toString() : '';
 				$data_node = $main_node->child(1);
 				if ($oid=='1.2.840.113549.1.9.14')//Requested Extensions
 				{
