@@ -42,8 +42,8 @@ class ASN1Utils
 //http://support.microsoft.com/kb/287547 (ms oids)
 	private static $oids = array(
 		'0.0'=>'null',//unofficial, i just added this to stop the syslogs
-		'0.9.2342.19200300.100.1.25'=>'uclDataNetworksDirectoryPilotDomainComponent',
-		'0.9.2342.19200300.100.1.1'=>'uclDataNetworksDirectoryPilotUserId',
+		'0.9.2342.19200300.100.1.25'=>'domainComponent',//uclDataNetworksDirectoryPilotDomainComponent
+		'0.9.2342.19200300.100.1.1'=>'uclUserId',//uclDataNetworksDirectoryPilotUserId
 		'1.2.840.10040.4.1'=>'dsaSignatureKey',
 		'1.2.840.10040.4.3'=>'dsaEncryption',
 		'1.2.840.10045.2.1'=>'ecPublicKey',//ECC
