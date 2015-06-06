@@ -5,6 +5,8 @@ Simple, lightweight certificate transparency log parser for PHP.
 
 This code will allow to one to download and parse SSL certificates from a public CT log.
 
+Stores CT log entries in groups in .gz files
+
 Quick PHP CLI example:
 ```php
 class CTParser extends CTReader
@@ -17,7 +19,7 @@ class CTParser extends CTReader
 }
 
 $ct = new CTParser('https://ct.googleapis.com/pilot/');
-$ct->downloadNextRange($i=0);//grab another 2000
+$ct->downloadNextRange($i=0);//grab next batch
 $ct->parseFileList();
 exit(0);
 ```
