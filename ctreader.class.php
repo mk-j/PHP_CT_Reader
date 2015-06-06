@@ -12,10 +12,14 @@
 class CTReader
 {
 	private $ct_url='';//see: http://www.certificate-transparency.org/known-logs
-	private $download_step=2000;
+	private $download_step=1000;
 
 	public function __construct($ct_url)
 	{
+        	$this->download_step = 1000;
+        	//different ct logs have different batch sizes
+        	if (strpos($ct_url, 'digicert')!==false ) { $this->download_step=64;   }
+
 		$this->ct_url = rtrim($ct_url, "/");
 	}
 
@@ -41,6 +45,9 @@ class CTReader
 		{
 			file_put_contents("php://stderr", "$filename doesn't exist\n");
 			$json = file_get_contents($url);
+                	$entry_count = count($json['entries']);
+                	file_put_contents("php://stderr", "REQ: ".$this->download_step.", got $entry_count\n");
+
 			$fd = fopen("compress.zlib://$filename","w");
 			if ($fd)
 			{
@@ -83,18 +90,31 @@ class CTReader
 
 	public function parseEntry($entry)
 	{
-		$merkleTreeLeaf = base64_decode( substr($entry['leaf_input'],0,20) );
-		$version = ord(substr($merkleTreeLeaf, 0, 1));//0=>version1
-		$leafType = ord(substr($merkleTreeLeaf, 1, 1));//0=>timestamped entry
-		$timestamp = substr($merkleTreeLeaf, 2, 8);//64 bit
-		$entryType = ord(substr($merkleTreeLeaf, 10, 2));//x509_entry(0), precert_entry(1), 65536
-		$pemLength = current(unpack("N", "\x00".substr($merkleTreeLeaf, 12, 3)));
-
-		$bin = base64_decode( substr($entry['leaf_input'], 20) );
-		$leaf_cert = base64_encode( substr($bin, 0, $pemLength) );
-		$cert_pem = "-----BEGIN CERTIFICATE-----"."\r\n".chunk_split($leaf_cert)."-----END CERTIFICATE-----"."\r\n";
-		$this->parseCert($cert_pem);
-	}
+            $merkleTreeLeaf = base64_decode( substr($entry['leaf_input'], 0, 16) );
+            $entryType = ord(substr($merkleTreeLeaf, 10, 1)) *256 +ord(substr($merkleTreeLeaf, 11, 1));
+            if ($entryType==0) //x509_entry
+            {
+                $length_bytes = base64_decode( substr($entry['leaf_input'], 16, 4) );
+                $cert_length = current(unpack("N", "\x00".$length_bytes));
+                $bin = base64_decode( substr($entry['leaf_input'], 20) );
+                $leaf_cert = base64_encode( substr($bin, 0, $cert_length) );
+                $cert_pem = "-----BEGIN CERTIFICATE-----"."\r\n".chunk_split($leaf_cert)."-----END CERTIFICATE-----"."\r\n";
+                return $this->parseCert($cert_pem);
+            }
+            else if ($entryType==1) //precertEntry
+            {
+                $xtra = base64_decode($entry['extra_data']);//extract full leaf cert from extra_data
+                $length_bytes = substr($xtra, 0, 3);
+                $cert_length = current(unpack("N", "\x00".$length_bytes));
+                $leaf_cert = base64_encode( substr($xtra, 3, $cert_length) );
+                $cert_pem = "-----BEGIN CERTIFICATE-----"."\r\n".chunk_split($leaf_cert)."-----END CERTIFICATE-----"."\r\n";
+                return $this->parseCert($cert_pem);
+            }
+            else
+            {
+                file_put_contents("php://stderr", "unable to parse ctlog entry\n");
+            }
+        }
 
 	public function parseCert($cert_pem)
 	{
