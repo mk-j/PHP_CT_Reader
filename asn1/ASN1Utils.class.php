@@ -173,6 +173,7 @@ class ASN1Utils
 		'2.16.840.1.113730.1.13'=>'nsComment',//nsCertificateComment
 		"2.16.840.1.113730.4.1"=>'netscapeSGC',//serverGatedCrypto
 		'2.16.840.1.113733.1.6.7'=>'verisignSerialNumberRolloverId',
+		'2.16.840.1.113733.1.8.1'=>'VeriSign SGC Identifier for CA Certificates',
 		'2.16.840.1.113741.1.2.3'=>'intelAMTProvisioning',
 	);
 
