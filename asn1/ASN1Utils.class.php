@@ -158,10 +158,13 @@ class ASN1Utils
 		'2.5.29.21'=>'reasonCode',//used in CRL (id-ce-reasonCode)
 		'2.5.29.31'=>'crlDistributionPoints',
 		'2.5.29.32'=>'certificatePolicies',
+		'2.5.29.33'=>'id-ce-policyMappings',
 		'2.5.29.35'=>'authorityKeyIdentifier',
+		'2.5.29.36'=>'id-ce-policyConstraints',
 		'2.5.29.37'=>'extendedKeyUsage',
 		"2.5.29.37.0"=>'anyExtendedKeyUsage',
 		"2.5.29.46"=>'FreshestCRL',
+		"2.5.29.54"=>'inhibitAnyPolicy',
 		'2.16.840.1.113719.1.9.4.1'=>'novellSecurityAttributes',
 		'2.16.840.1.113730.1.1'=>'nsCertType',//netscape-cert-type
 		'2.16.840.1.113730.1.2'=>'nsBaseURL',
