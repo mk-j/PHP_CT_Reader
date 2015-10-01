@@ -202,7 +202,7 @@ class ASN1Utils
 		//ignore custom oids http://support.microsoft.com/kb/287547
 		if (substr($oid, 0,strlen('1.3.6.1.4.1.311.21.8.'))!='1.3.6.1.4.1.311.21.8.')
 		{
-			syslog(LOG_INFO, "[CERTTOOLS] Unknown OID in ASN1Utils: $oid");
+			//syslog(LOG_INFO, "[CERTTOOLS] Unknown OID in ASN1Utils: $oid");
 		}
 		return 'unknown_'.$oid;
 	}
