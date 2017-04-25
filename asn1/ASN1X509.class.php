@@ -311,10 +311,15 @@ class ASN1X509 extends ASN1File
 		{
 			foreach($parsed_node->children() as $child)
 			{
-				if ($child->tag()==0x87) // ip address
-					$info[] = inet_ntop(hex2bin($child->toString()));
-				else 
+				if ($child->tag()!==0x87) { //not an ip address, likely an ascii or utf8 subjectAltName
 					$info[] = $child->toString();
+				} else if ($child->clength()==4) { //ipv4
+					$info[] = inet_ntop(hex2bin($child->toHexString()));
+				} else if ($child->clength()==16) { //ipv6
+					$info[] = implode(":",str_split($child->toHexString(),4));
+				} else { //unknown, perhaps encoded incorrectly
+					$info[] = $child->toHexString();
+				}
 			}
 		}//2.5.29.18
 		else if (!empty($parsed_node))
