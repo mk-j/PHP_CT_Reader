@@ -14,7 +14,7 @@ class ASN1PKCS7 extends ASN1File
 			{
 				$good_so_far++;
 			}
-			if (($child = $this->root->child(1)->child(0)->child(1)) && $child->tag()==ASN1Parser::U_Set)
+			if (($child = $this->root->child(1)->child(0)->child(1)) && $child->tag()==0x31)//if ($child->tag()&0x1F)==ASN1Parser::U_Set
 			{
 				$good_so_far++;
 			}
