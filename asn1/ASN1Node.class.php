@@ -1,4 +1,5 @@
 <?php
+include_once("asn1/ASN1Parser.class.php");
 
 class ASN1Node
 {

@@ -1,48 +1,51 @@
 <?php
+include_once("asn1/ASN1Utils.class.php");
+include_once("asn1/ASN1Node.class.php");
+
 
 class ASN1Parser
 {
 	//Univeral Tags
-    const U_EOC             =0x00;
-    const U_BOOLEAN         =0x01;
-    const U_INTEGER         =0x02;
-    const U_BIT_STRING      =0x03;
-    const U_OCTET_STRING    =0x04;
-    const U_NULL            =0x05;
-    const U_OID             =0x06;
-    const U_ObjectDescriptor=0x07;
-    const U_External        =0x08;
-    const U_Real            =0x09;
-    const U_Enumerated      =0x0A;
-    const U_EmbeddedPDV     =0x0B;
-    const U_UTF8String      =0x0C;
-    const U_Sequence        =0x10;
-    const U_Set             =0x11;
-    const U_NumericString   =0x12;
-    const U_PrintableString =0x13; //ASCII subset A, B, ..., Z a, b, ..., z 0, 1, ..., 9 (space) ' ( ) + , - . / : = ?  EXCLUDES & and @
-    const U_T61String       =0x14; //TeletexString //an arbitrary string of T.61 (eight-bit) characters.
-    const U_VideoTexString  =0x15;                           
-    const U_IA5String       =0x16; //ASCII                         
-    const U_UTCTime         =0x17;                           
-    const U_GeneralizedTime =0x18;                           
-    const U_GraphicString   =0x19;                           
-    const U_VisibleString   =0x1A; //ASCII subset              
-    const U_GeneralString   =0x1B;                           
-    const U_UniversalString =0x1C;                           
-    const U_BMPString       =0x1E;
+	const U_EOC             =0x00;
+	const U_BOOLEAN         =0x01;
+	const U_INTEGER         =0x02;
+	const U_BIT_STRING      =0x03;
+	const U_OCTET_STRING    =0x04;
+	const U_NULL            =0x05;
+	const U_OID             =0x06;
+	const U_ObjectDescriptor=0x07;
+	const U_External        =0x08;
+	const U_Real            =0x09;
+	const U_Enumerated      =0x0A;
+	const U_EmbeddedPDV     =0x0B;
+	const U_UTF8String      =0x0C;
+	const U_Sequence        =0x10;
+	const U_Set             =0x11;
+	const U_NumericString   =0x12;
+	const U_PrintableString =0x13; //ASCII subset A, B, ..., Z a, b, ..., z 0, 1, ..., 9 (space) ' ( ) + , - . / : = ?  EXCLUDES & and @
+	const U_T61String       =0x14; //TeletexString //an arbitrary string of T.61 (eight-bit) characters.
+	const U_VideoTexString  =0x15;                           
+	const U_IA5String       =0x16; //ASCII                         
+	const U_UTCTime         =0x17;                           
+	const U_GeneralizedTime =0x18;                           
+	const U_GraphicString   =0x19;                           
+	const U_VisibleString   =0x1A; //ASCII subset              
+	const U_GeneralString   =0x1B;                           
+	const U_UniversalString =0x1C;                           
+	const U_BMPString       =0x1E;
 
-    public static function parseDERBytes(&$bytes,&$pos)
+	public static function parseDERBytes(&$bytes,&$pos)
 	{
 		if (empty($bytes)){ return; }
-        $startpos = $pos;
-    	$tag = self::readByte($bytes,$pos);
+		$startpos = $pos;
+		$tag = self::readByte($bytes,$pos);
 		$clength = self::readLength($bytes,$pos);
-    	$header = $pos - $startpos;
-    	$cstart = $pos;
+		$header = $pos - $startpos;
+		$cstart = $pos;
 		//echo json_encode(array($tag,$clength,$pos))."\n";
 
 		$node = new ASN1Node($bytes, $tag, $cstart, $clength, $header);
-//        echo json_encode(array($startpos,$header,$cstart,$clength,"t$tag"))."\n";
+		//echo json_encode(array($startpos,$header,$cstart,$clength,"t$tag"))."\n";
 		//$node = array();
 		//$node['tag'] = $tag;
 		//$node['cstart'] = $cstart;
@@ -374,7 +377,4 @@ class ASN1Parser
 	}
 }//class
 
-/*
- * additional testing:
- * exceptions thrown for csr 00242943
- */
+

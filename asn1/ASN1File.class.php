@@ -1,5 +1,6 @@
 <?php
-
+include_once("asn1/ASN1Parser.class.php");
+include_once("asn1/ASN1Utils.class.php");
 
 class ASN1File
 {
@@ -260,7 +261,7 @@ class ASN1File
 if(0 && basename($_SERVER['PHP_SELF'])==basename(__FILE__) && php_sapi_name()=='cli')
 {
 	$file = new ASN1File();
-	$file->loadFile('www_digicert_com.pem');
+	$file->loadFile('certificate.pem');
 	$file->echoNodes();
 
 	echo (memory_get_peak_usage()/1024)."KB"."\n";
