@@ -46,7 +46,12 @@ class ASN1PKCS7 extends ASN1File
 			$children = $this->root->child(1)->child(0)->child(3)->children();
 			foreach($children as $child)
 			{
-				$bytes = $child->contentBytes();
+				//$bytes = $child->bytes;//bytes is a private member... wrap in seq as workaround
+				$content = $child->contentBytes();
+
+				$bytes= "\x30";//tag=seq
+				$bytes.= ASN1Utils::encodeLength(strlen($content));//length
+				$bytes.=$content;
 				$certs[] = '-----BEGIN CERTIFICATE-----'."\r\n".chunk_split(base64_encode($bytes),64,"\r\n").'-----END CERTIFICATE-----'."\r\n";
 			}
 		}
